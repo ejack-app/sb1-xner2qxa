@@ -125,4 +125,79 @@ function update_stock_location($id, $data) {
         return false;
     }
 }
+
+/**
+ * Suggests a pick location for a given item and quantity within a warehouse.
+ * Prioritizes locations with enough available stock.
+ * Basic version: picks the first suitable location.
+ * @param int $item_id
+ * @param int $quantity_needed
+ * @param int $warehouse_id
+ * @return array|null An associative array with 'location_id' and 'location_code', or null if no suitable location found.
+ */
+function get_suggested_pick_location_for_item($item_id, $quantity_needed, $warehouse_id) {
+    $pdo = get_db_connection();
+    // Find locations in the given warehouse that have the item with enough available quantity
+    // is_pickable = TRUE is important.
+    $sql = "SELECT sl.id as location_id, sl.location_code,
+                   (s.quantity_on_hand - s.quantity_allocated) as quantity_available
+            FROM stock_locations sl
+            JOIN inventory_stock s ON sl.id = s.stock_location_id
+            WHERE sl.warehouse_id = :warehouse_id
+              AND s.item_id = :item_id
+              AND sl.is_pickable = TRUE
+              AND (s.quantity_on_hand - s.quantity_allocated) >= :quantity_needed
+            ORDER BY (s.quantity_on_hand - s.quantity_allocated) ASC, sl.location_code ASC -- Pick from smallest available exact match first, or just any
+            LIMIT 1";
+            // More advanced: FIFO (by last_stock_update date), preferred location types, etc.
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':warehouse_id' => $warehouse_id,
+        ':item_id' => $item_id,
+        ':quantity_needed' => $quantity_needed
+    ]);
+    $location = $stmt->fetch();
+
+    if ($location) {
+        return ['location_id' => $location['location_id'], 'location_code' => $location['location_code']];
+    }
+
+    // Fallback: If no location has enough, find any location with some stock (for partial pick or to indicate issue)
+    $sql_any = "SELECT sl.id as location_id, sl.location_code, (s.quantity_on_hand - s.quantity_allocated) as quantity_available
+                 FROM stock_locations sl
+                 JOIN inventory_stock s ON sl.id = s.stock_location_id
+                 WHERE sl.warehouse_id = :warehouse_id AND s.item_id = :item_id AND sl.is_pickable = TRUE AND (s.quantity_on_hand - s.quantity_allocated) > 0
+                 ORDER BY quantity_available DESC LIMIT 1";
+    $stmt_any = $pdo->prepare($sql_any);
+    $stmt_any->execute([ ':warehouse_id' => $warehouse_id, ':item_id' => $item_id ]);
+    $any_location = $stmt_any->fetch();
+
+    if ($any_location) {
+         return ['location_id' => $any_location['location_id'], 'location_code' => $any_location['location_code']];
+    }
+    return null; // No location found with any stock
+}
+
+/**
+ * Gets all stock locations for a given item within a specific warehouse that have available stock.
+ * @param int $item_id
+ * @param int $warehouse_id
+ * @return array List of stock locations with their codes and available quantities.
+ */
+function get_stock_locations_for_item_in_warehouse($item_id, $warehouse_id) {
+    $pdo = get_db_connection();
+    $sql = "SELECT sl.id as stock_location_id, sl.location_code,
+                   (s.quantity_on_hand - s.quantity_allocated) as quantity_available
+            FROM stock_locations sl
+            JOIN inventory_stock s ON sl.id = s.stock_location_id
+            WHERE sl.warehouse_id = :warehouse_id
+              AND s.item_id = :item_id
+              AND sl.is_pickable = TRUE
+              AND (s.quantity_on_hand - s.quantity_allocated) > 0 -- Only locations with available stock
+            ORDER BY sl.location_code ASC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':item_id' => $item_id, ':warehouse_id' => $warehouse_id]);
+    return $stmt->fetchAll();
+}
 ?>

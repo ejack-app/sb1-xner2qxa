@@ -95,4 +95,16 @@ function require_admin() {
         exit;
     }
 }
+
+/**
+ * Fetches users who are designated as pickers.
+ * @return array List of users with 'picker' role (or other relevant roles).
+ */
+function get_pickers() {
+    $pdo = get_db_connection();
+    // Adjust roles as needed for your system
+    $stmt = $pdo->query("SELECT id, username FROM users WHERE is_active = TRUE AND role IN ('picker', 'admin', 'warehouse_staff', 'user') ORDER BY username ASC");
+    // Added 'user' for broader selection during testing, refine as needed.
+    return $stmt->fetchAll();
+}
 ?>
