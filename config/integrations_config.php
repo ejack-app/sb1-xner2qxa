@@ -8,6 +8,7 @@ return [
         'api_key' => 'SALLA_API_KEY_PLACEHOLDER',
         'api_secret' => 'SALLA_API_SECRET_PLACEHOLDER',
         'webhook_url' => '/webhooks/salla.php', // Example
+        'webhook_secret' => 'YOUR_SALLA_WEBHOOK_SECRET', // Added for webhook verification
         'base_url' => 'https://api.salla.dev/admin/v2/', // Example, check actual Salla API docs
     ],
 
@@ -17,6 +18,7 @@ return [
         'auth_token' => 'ZID_AUTH_TOKEN_PLACEHOLDER', // Zid might use OAuth or other tokens
         'store_id' => 'ZID_STORE_ID_PLACEHOLDER',
         'webhook_url' => '/webhooks/zid.php', // Example
+        'webhook_token' => 'YOUR_ZID_WEBHOOK_VERIFICATION_TOKEN', // Added for webhook verification
         'base_url' => 'https://api.zid.sa/v1/', // Example, check actual Zid API docs
     ],
 

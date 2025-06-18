@@ -57,5 +57,36 @@ class SallaIntegration {
     // Other potential methods:
     // - handleWebhook($payload)
     // - getProductDetails($salla_product_id)
+
+    public function processOrderCreatedWebhook($order_data) {
+        error_log("SallaIntegration: Processing 'order.created' webhook. Data: " . json_encode($order_data));
+        // Placeholder Logic:
+        // 1. Extract relevant order details (order ID, items, SKUs, quantities).
+        // $salla_order_id = $order_data['id'];
+        // $items_from_salla = $order_data['items'] ?? [];
+        // foreach ($items_from_salla as $salla_item) {
+        //     $sku = $salla_item['sku'];
+        //     $quantity_ordered = $salla_item['quantity'];
+        //     // item_functions.php needs to be included or its functions made available via DI
+        //     // For placeholder, assume functions like get_item_by_sku are callable
+        //     // $local_item = get_item_by_sku($sku);
+        //     // if ($local_item) {
+        //     //     // Find a stock location to allocate from (simplistic: first available, or a default)
+        //     //     // $stock_locations = get_item_stock_levels_by_location($local_item['id']);
+        //     //     // if (!empty($stock_locations)) {
+        //     //     //    $location_to_allocate_from = $stock_locations[0]['stock_location_id'];
+        //     //     //    allocate_stock($local_item['id'], $location_to_allocate_from, $quantity_ordered);
+        //     //     // } else { error_log("No stock location for SKU {$sku} to allocate from."); }
+        //     // } else { error_log("SKU {$sku} from Salla order not found locally."); }
+        // }
+        // 2. Create or update local order record. (Future step)
+        return ['success' => true, 'message' => 'Order webhook processed (placeholder).'];
+    }
+
+    public function processProductUpdateWebhook($product_data) {
+        error_log("SallaIntegration: Processing 'product.updated' webhook. Data: " . json_encode($product_data));
+        // Placeholder: Update local item master data or stock if Salla is master.
+        return ['success' => true, 'message' => 'Product update webhook processed (placeholder).'];
+    }
 }
 ?>
