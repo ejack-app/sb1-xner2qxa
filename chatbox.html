@@ -1,0 +1,160 @@
+
+<div class="container-fluid h-50" ng-init="getuser();">
+  <div class="row  h-100">
+    <div class="col-md-4 col-xl-3 chat1">
+      <div class="card card1 mb-sm-3 mb-md-0 contacts_card">
+        <div class="card-header">
+          <div class="input-group">
+            <input type="text" ng-model="search" placeholder="Search..." name="" class="form-control search">
+            <div class="input-group-prepend">
+              <span class="input-group-text search_btn"><i class="fas fa-search"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body contacts_body">
+          <ul class="contacts">
+            <li ng-class="{'active1': chat.cor_id == selected}" ng-repeat='chat in chats | filter:search'
+              ng-click="activeuser(chat.cor_id, chat.messenger_name,chat.messanger_image);">
+              <div class="d-flex bd-highlight">
+                <div class="img_cont">
+                  <img src="{{ chat.messanger_image }}"
+                    class="rounded-circle user_img">
+                  <span class="online_icon"></span>
+                </div>
+                <div class="user_info">
+                  <span>{{ chat. messenger_name }}</span>
+                  <!-- <p>Kalid is online</p> -->
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer"></div>
+      </div>
+    </div>
+    <div class="col-md-8 col-xl-6 chat1">
+      <div class="card card1" style="margin-top: 13px;">
+        <div class="card-header msg_head">
+          <div class="d-flex bd-highlight">
+            <div class="img_cont">
+              <img src="{{image}}" class="rounded-circle user_img">
+              <span class="online_icon"></span>
+            </div>
+            <div class="user_info">
+              <span>{{ username }}</span>
+              <p>{{ totalmessage }} Messages</p>
+            </div>
+            <div class="video_cam ml-auto">
+              <span><i class="fas fa-video"></i></span>
+              <span><i class="fas fa-phone"></i></span>
+            </div>
+          </div>
+          <span id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>
+          <div class="action_menu">
+            <ul>
+              <li><i class="fas fa-user-circle"></i> View profile</li>
+              <li><i class="fas fa-users"></i> Add to close friends</li>
+              <li><i class="fas fa-plus"></i> Add to group</li>
+              <li><i class="fas fa-ban"></i> Block</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card-body msg_card_body">
+          <div ng-repeat="message in messages">
+
+
+            <div class="d-flex justify-content-start mb-4  w-100" style="width:100% ;"  ng-if="message.sender_id!=sendertype">
+              <div class="img_cont_msg">
+                <img src="https://therichpost.com/wp-content/uploads/2020/06/avatar2.png"
+                  class="rounded-circle user_img_msg">
+              </div>
+              <div class="msg_cotainer ">
+                {{ message.messages }}
+                <span class="msg_time">{{ fixDate(message.date)| date:'fullDate' }}</span>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mb-4  w-100" style="width:100% ;" ng-else>
+              <div class="msg_cotainer_send">
+                {{ message.messages }}
+                <span class="msg_time_send"> {{ fixDate(message.date)| date:'fullDate' }}</span>
+              </div>
+              <div class="img_cont_msg">
+                <img src="{{image}}"
+                  class="rounded-circle user_img_msg">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer d-block">
+          <div class="form-group filefiled" ng-show="resultdriver">
+            <img ng-if="chat.logo && !chat.newLogo && result2" src="{{chat.logo}}" class="img-fluid" width="90px;"
+              height="90px;">
+            <img ng-if="chat.newLogo" src="{{chat.newLogo}}" class="img-fluid" width="90px;" height="90px;">
+            <div class="fileinput input-group ng-isolate-scope fileinput-exists" data-provides="fileinput">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{'lang_Upload'|translate}}</span>
+              </div>
+              <div class="form-control text-truncate" data-trigger="fileinput" ng-click="removeimage(1)"> <span
+                  class="fileinput-filename"></span>
+              </div>
+              <span class="input-group-append">
+                <span class=" btn btn-primary btn-file"><span
+                    class="fileinput-new">{{'lang_SelectFile'|translate}}</span><span
+                    class="fileinput-exists">{{'lang_Change'|translate}}</span>
+                  <input type="hidden" value="" name=""><input type="file" name="logo" fileread="chat.logo"
+                    accept="image/*" class="ng-isolate-scope">
+                </span>
+                <a href="#" class="btn btn-secondary fileinput-exists" data-dismiss="fileinput"
+                  ng-click="removeimage(0)">{{'lang_Remove'|translate}}</a>
+              </span>
+            </div>
+            <br>
+          </div>
+          <div class="form-group filefiled" ng-show="result3">
+            <!-- <img ng-if="chat.Doc && !chat.newDoc && result4" src="{{chat.Doc}}" class="img-fluid" width="90px;"
+              height="90px;"> -->
+            <!-- <img ng-if="chat.newDoc" src="{{chat.newDoc}}" class="img-fluid" width="90px;" height="90px;"> -->
+            <div class="fileinput input-group ng-isolate-scope fileinput-exists" data-provides="fileinput">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{'lang_Upload'|translate}}</span>
+              </div>
+              <div class="form-control text-truncate" data-trigger="fileinput" ng-click="removeimage(1)"> <span
+                  class="fileinput-filename"></span>
+              </div>
+              <span class="input-group-append">
+                <span class=" btn btn-primary btn-file"><span
+                    class="fileinput-new">{{'lang_SelectFile'|translate}}</span><span
+                    class="fileinput-exists">{{'lang_Change'|translate}}</span>
+                  <input type="hidden" value="" name=""><input type="file" name="Doc" fileread="chat.Doc"
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                    class="ng-isolate-scope">
+                </span>
+                <a href="#" class="btn btn-secondary fileinput-exists" data-dismiss="fileinput"
+                  ng-click="removeimage(0)">{{'lang_Remove'|translate}}</a>
+              </span>
+            </div>
+            <br>
+          </div>
+          <div class="input-group">
+            <div class="input-group-append" id="actoin_menudriverbtn">
+              <span ng-click="activefielddriver(0)" class="input-group-text attach_btn"><i class="fas fa-paperclip"></i></span>
+              <div class="action_menudriver">
+                <ul>
+                  <li id="imageupload" ng-click="activefielddriver(1)"><i class="fas fa-image"></i>Image</li>
+                  <li ng-click="activefielddriver(2)"><i class="fas fa-file"></i>Documetn</li>
+                </ul>
+              </div>
+            </div>
+            <textarea name="" class="form-control type_msg" ng-model="textmessage"
+              placeholder="Type your message..."></textarea>
+            <div class="input-group-append" ng-click="sendmessage();">
+              <span class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

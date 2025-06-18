@@ -1,0 +1,618 @@
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
+
+  <nav class="hk-breadcrumb" aria-label="breadcrumb"
+      ng-init="showDashboardData();showdashboardgraph();GetshowmonthlyinsideData();GetexportData();">
+      <ol class="breadcrumb breadcrumb-light bg-transparent">
+          <li class="breadcrumb-item"><a href="#"><i
+                      class="glyphicon glyphicon-home"></i>{{ 'lang_Home' | translate }}</a></li>
+
+          <li class="breadcrumb-item active" aria-current="page">{{ 'lang_dashBoard' | translate }}</li>
+      </ol>
+  </nav>
+  <div class="">
+      <div class="breadcrumb-line">
+          <div class="hk-pg-header">
+              <h4><i data-feather="arrow-left-circle"></i></i>
+                  <span class="text-semibold"></span>{{ 'lang_Home' | translate }} - {{ 'lang_dashBoard' | translate }}
+              </h4>
+          </div>
+      </div>
+      <section class="hk-sec-wrapper">
+          <h5 class="hk-sec-title">{{ 'lang_dashBoard' | translate }}</h5><br>
+          <div class="hk-row">
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-primary">
+                      <div class="card-body">
+                          <div class="d-flex align-items-center justify-content-between">
+                              <div>
+                                  <span
+                                      class="d-block font-12 font-weight-500 text-uppercase mb-5">{{ 'lang_Todays_Order' | translate }}</span>
+                                  <span class="d-block display-6 font-weight-400">{{ total_shipment }}</span>
+                              </div>
+                              <div class="heading-elements">
+                                  <ul class="icons-list">
+                                      <li><i class="fa fa-shopping-cart fa-2x"></i></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-secondary">
+                      <div class="card-body">
+                          <div class="d-flex align-items-center justify-content-between">
+                              <div>
+                                  <span
+                                      class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_New_Customers_Today' | translate }}</span>
+                                  <span class="d-block display-6 font-weight-400">{{ total_coustomer }}</span>
+                              </div>
+                              <div class="heading-elements">
+                                  <ul class="icons-list">
+                                      <li><i class="fa icon-user-follow fa-2x"></i> </li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-info">
+                      <div class="card-body">
+                          <div class="d-flex align-items-center justify-content-between">
+                              <div>
+                                  <span
+                                      class="d-block font-12 font-weight-500 text-uppercase mb-5">{{ 'lang_Payments_Today' | translate }}</span>
+                                  <span class="d-block display-6 font-weight-400 ">{{ total_payment }}</span>
+                              </div>
+                              <div class="heading-elements">
+                                  <ul class="icons-list">
+                                      <li><i class="fa fa-usd fa-2x"></i></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-success">
+                      <div class="card-body">
+                          <div class="d-flex align-items-center justify-content-between">
+                              <div>
+                                  <span
+                                      class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_New_Inquries_Today' | translate }}</span>
+                                  <span class="d-block display-6 font-weight-400 ">{{ total_customer }}</span>
+                              </div>
+                              <div class="heading-elements">
+                                  <ul class="icons-list">
+                                      <li><i class="fa fa-file-text fa-2x"></i> </li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-danger">
+                      <div class="card-body">
+
+                          <a ui-sref="getallshipments({search_type:'S',main_status:1,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Not_Delivered' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ not_delivered }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-cab fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-warning">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:4,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Pickup_Collected' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ pick_upcollected }}</span>
+                                  </div>
+                                  <div>
+                                      <div class="heading-elements">
+                                          <ul class="icons-list">
+                                              <li><i class="fa fa-cube fa-2x"></i> </li>
+                                          </ul>
+                                      </div>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-secondary">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:5,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Out_of_Delivery' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ outfordelivery }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-ship fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-info">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:6,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Return' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ returnval }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-truck fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-success">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:7,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500 text-uppercase mb-5">{{ 'lang_Shelve' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ shelve }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-archive fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-danger">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:8,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Shipment_Forward_Arrival' | translate }}</span>
+                                      <span
+                                          class="d-block display-6 font-weight-400 ">{{ shipment_forward_arrival }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-cubes fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-warning">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:10,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Hold_for_Pickup' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ holdfor_pickup }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-truck fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-primary">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:11,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Delivered' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ pod }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-angellist fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-secondary">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:13,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Recieved_in_Bound' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ received_inbound }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-qrcode fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-info">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:14,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Ready_for_Delivery' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ readyfor_delivery }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-subway fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          </div><br>
+          <div class="hk-row">
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-primary">
+                      <div class="card-body">
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_totalDrivers' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ total_driver }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-qrcode fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-secondary">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:14,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_COD_Shipmenttoday' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ total_codshipment }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-subway fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          </div><br>
+          <div class="hk-row">
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-danger">
+                      <div class="card-body">
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Ticketstodays' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ total_tickets }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-qrcode fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-warning">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:14,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Ticketopen' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ total_opentickets }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-subway fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="card card-sm text-white bg-secondary">
+                      <div class="card-body">
+                          <a ui-sref="getallshipments({search_type:'S',main_status:14,shipmentStatus:0,statusBy:'LAST'})"
+                              style="color:white">
+
+                              <div class="d-flex align-items-center justify-content-between">
+                                  <div>
+                                      <span
+                                          class="d-block font-12 font-weight-500  text-uppercase mb-5">{{ 'lang_Ticketclose' | translate }}</span>
+                                      <span class="d-block display-6 font-weight-400 ">{{ total_closetickets }}</span>
+                                  </div>
+                                  <div class="heading-elements">
+                                      <ul class="icons-list">
+                                          <li><i class="fa fa-subway fa-2x"></i> </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          </div><br>
+          <div class="panel panel-flat">
+              <div class="panel-heading">
+                  <h5 class="panel-title">{{ 'lang_Monthly_Shipment_Details' | translate }}</h5>
+
+
+              </div>
+              <div class="panel-body">
+                  <div class="chartContainer" style="height: 300px; width: 100%"></div>
+              </div>
+          </div>
+          <br />
+
+          <br />
+          <br />
+          <div class="panel panel-flat">
+              <div class="panel-heading">
+                  <h5 class="panel-title">{{ 'lang_All_Data_Statistics' | translate }}</h5>
+
+
+              </div>
+              <div class="panel-body">
+                  <div id="chartContainer1" style="height: 300px; width: 100%;"></div>
+              </div>
+          </div>
+          <br />
+
+          <br />
+          <br />
+
+          <div class="panel panel-flat">
+              <div class="panel-heading">
+                  <h5 class="panel-title">{{ 'lang_Daily_Out_For_Delivery_Details' | translate }}</h5>
+
+
+              </div>
+              <div class="panel-body" ng-init="getOfdData();">
+                  <div class="table-responsive">
+
+                      <input class="btn btn-info" type="button" onclick="create_zip();"
+                          value="{{ 'lang_exportToExcelzIP' | translate }}" style="margin-bottom:10px;">
+
+                      <table class="table table-striped table-bordered table-hover">
+
+                          <thead>
+                              <tr>
+                                  <th>{{ 'lang_srNo' | translate }}</th>
+                                  <th>{{ 'lang_Courier' | translate }}</th>
+                                  <th>{{ 'lang_Code' | translate }}</th>
+                                  <th>{{ 'lang_upplier' | translate }}</th>
+                                  <th>{{ 'lang_Hub' | translate }}</th>
+                                  <th>{{ 'lang_OFD' | translate }}</th>
+                                  <th>{{ 'lang_Running' | translate }}</th>
+                                  <th>{{ 'lang_Delivered' | translate }}</th>
+
+                                  <th>{{ 'lang_Not_Delivered' | translate }}</th>
+
+                                  <th>{{ 'lang_DeliveryPerformance' | translate }} </th>
+                                  <th>{{ 'lang_action' | translate }}</th>
+                              </tr>
+                          </thead>
+
+                          <tbody>
+                              <tr ng-repeat="data in listData">
+                                  <td> {{ $index + 1 }}</td>
+                                  <td> {{ data . messangerName }}</td>
+                                  <td> {{ data . messenger_code }}</td>
+                                  <td> {{ data . supplierName }}</td>
+                                  <td> {{ data . city_id }}</td>
+                                  <td><a class="btn btn-info"
+                                          ui-sref="todayofd({messanger_id:data.messanger_id,drs_date:data.drs_date,ofdstatus:0})"
+                                          target="_blank">{{ data . totaldrs }}</a></td>
+                                  <td><a class="btn btn-warning"
+                                          ui-sref="todayofd({messanger_id:data.messanger_id,drs_date:data.drs_date,ofdstatus:2})"
+                                          target="_blank">{{ data . running }}</a></td>
+                                  <td><a class="btn btn-success"
+                                          ui-sref="todayofd({messanger_id:data.messanger_id,drs_date:data.drs_date,ofdstatus:1})"
+                                          target="_blank">{{ data . delivered }}</a></td>
+                                  <td><a class="btn btn-danger"
+                                          ui-sref="todayofd({messanger_id:data.messanger_id,drs_date:data.drs_date,ofdstatus:5})"
+                                          target="_blank">{{ data . notdeliverd }}</a></td>
+                                  <td><a class="btn btn-primary ng-scope" style="font-size:10px;color:white"
+                                          target="_blank">{{ data . totalperformance }} %</a></td>
+                                  <td><a class="dropdown-item" style="cursor:pointer"
+                                          ng-click="chartcheckdetail(data.running,data.delivered,data.notdeliverd,'#exampleModalForms');"><i
+                                              class="fa fa-signal fa-2x"></i> </a>
+                              </tr>
+
+                              <tr ng-if="listData==0">
+                                  <td colspan="11" class="alert center">{{ 'lang_recordNotFound' | translate }}
+                                  </td>
+                              </tr>
+                          </tbody>
+
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </section>
+
+      <div class="modal" id="exampleModalForms" tabindex="-1" role="dialog" aria-labelledby="exampleModalForms"
+          aria-hidden="true">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h4 class="modal-title">{{ 'lang_Graph_Details' | translate }}</h4>
+                      <button type="button" class="close" data-dismiss="modal">×</button>
+                  </div>
+                  <div class="modal-body">
+                      <canvas id="doughnut-chart" style="width: 598px; height: 299px; display: block;" height="239"
+                          width="478"></canvas>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div style="display:none;">
+
+          <table id="printTable" class="table table-striped table-bordered table-hover">
+
+              <thead>
+                  <tr>
+                      <th>{{ 'lang_srNo' | translate }}</th>
+                      <th>{{ 'lang_Courier' | translate }}</th>
+                      <th>{{ 'lang_Code' | translate }}</th>
+                      <th>{{ 'lang_upplier' | translate }}</th>
+                      <th>{{ 'lang_Hub' | translate }}</th>
+                      <th>{{ 'lang_OFD' | translate }}</th>
+                      <th>{{ 'lang_Running' | translate }}</th>
+                      <th>{{ 'lang_Delivered' | translate }}</th>
+
+                      <th>{{ 'lang_Not_Delivered' | translate }}</th>
+
+                      <th>{{ 'lang_DeliveryPerformance' | translate }} </th>
+
+                  </tr>
+              </thead>
+
+              <tbody>
+                  <tr ng-repeat="data in listData">
+                      <td> {{ $index + 1 }}</td>
+                      <td> {{ data . messangerName }}</td>
+                      <td> {{ data . messenger_code }}</td>
+                      <td> {{ data . supplierName }}</td>
+                      <td> {{ data . city_id }}</td>
+                      <td>{{ data . totaldrs }}</td>
+                      <td>{{ data . running }}</td>
+                      <td>{{ data . delivered }}</td>
+                      <td>{{ data . notdeliverd }}</td>
+                      <td>{{ data . totalperformance }} %</td>
+
+                  <tr ng-if="listData==0">
+                      <td colspan="11" class="alert center">{{ 'lang_recordNotFound' | translate }}</td>
+                  </tr>
+              </tbody>
+
+          </table>
+      </div>
+      <SCRIPT>
+          function create_zip() {
+              var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+              tab_text = tab_text + '<head><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>';
+              tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
+              tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+              tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+              tab_text = tab_text + "<table border='1px'>";
+              //get table HTML code
+              tab_text = tab_text + $('#printTable').html();
+              tab_text = tab_text + '</table></body></html>';
+
+              /*var zip = new JSZip();
+              zip.add(Date()+"_manifest details.xls", tab_text);
+              content = zip.generate();
+              zip.file(Date()+"_manifest details.xls"); // the file
+              location.href="data:application/zip;base64," + content;*/
+
+              var zip = new JSZip();
+              zip.file(Date() + " OFD Report.xls", tab_text);
+              zip.generateAsync({
+                      type: "blob"
+                  })
+                  .then(function(content) {
+                      saveAs(content, Date() + " OFD Report.zip");
+                  });
+
+
+          }
+      </SCRIPT>
+
+  </div>

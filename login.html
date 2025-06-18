@@ -1,0 +1,79 @@
+<style>
+.btn:hover{
+	background-color:#23bdb5;
+}
+	</style>
+<div class="hk-wrapper"  > 
+  
+  <!-- Main Content -->
+  <div class="hk-pg-wrapper hk-auth-wrapper"  style="background-image: url('assets/images/background2.jpg'); background-size: cover; ">
+    <div class="container-fluid">
+      <div class="row">   
+        <div class="col-xl-12 pa-0">
+          <div class="auth-form-wrap pt-xl-0 pt-70">
+            <div class="auth-form w-xl-30 w-lg-55 w-sm-75 w-100"> <a class="auth-brand text-center d-block mb-20" href="#"> 
+             
+            
+            </a>
+            <div class="alert alert-danger" role="alert" ng-if="errormess">
+ {{errormess}}
+</div>
+
+			 <div class="card" style="background-color: rgba(255, 255, 255, 0.2);margin: 10%; box-shadow: 0 0px 18px rgba(0, 0, 0, 0.10) ;">
+				<div class="text-center">
+					<img src="assets/logo/ejacklogo.png" class="img-fluid" width="200">
+				   
+					  <h5 class="content-group" style="color:#fff;">{{'lang_Login_to_your_account'|translate}} <br><small class="display-block">{{'lang_Your_credentials'|translate}}</small></h5>
+					</div>
+			<div class="card-body" >
+				 <form name="loginfrm" id="loginfrm" role="form" ng-submit="dologin(logArray)">
+
+					<div class="form-group has-feedback has-feedback-left">
+						<input type="text" class="form-control" placeholder="Username or Email" name="username"  ng-model="logArray.username"  required="required" style="background-color: transparent;border: none;border-bottom: 1px solid #fff; color: #fff;">
+						
+					  </div>
+
+					  <div class="form-group has-feedback has-feedback-left">        
+						<input type="password" class="form-control" placeholder="Password" name="password" ng-model="logArray.password"  required="required" style="background-color: transparent;border: none;border-bottom: 1px solid #fff; color: #fff;">
+						
+					  </div>
+
+
+					<!--<div class="row align-items-center remember">
+						<input class="custom-control-input" id="same-address" type="checkbox" checked>Keep me logged in
+					</div>-->
+
+					<div class="form-group">
+						<button type="submit" class="btn bg-pink-400 btn-block" style="background-color:#3997d7;color:white">{{'lang_Login'|translate}} <i class="icon" style="margin-top:0px;" data-icon=""></i></button>     
+					  </div> 
+					  <div style="color:rgb(255, 255, 255); margin-left:60px;">
+ <p>Power By<a href="https://www.eijack.com/" target="_blank"> <img src="assets/images/ejacklogo.png" class="img-fluid" style="vertical-align: middle;" width="40px;" height=""  class="text-dark" ></a> © 2022</p> </div>
+					
+        </form>
+        
+        
+			</div>
+			
+		</div>
+			  
+			  
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
+  <!-- /Main Content --> 
+<div class="hk-footer-wrap container">
+          <footer class="footer">
+              <div class="row">
+    <div class="col-md-3 col-sm-12"> 
+                     
+                  </div>
+                  
+                  
+              </div>
+          </footer> 
+      </div>
+</div>
