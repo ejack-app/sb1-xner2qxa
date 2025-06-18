@@ -1,17 +1,18 @@
 <?php
 require_once __DIR__ . '/database_connection.php';
 require_once __DIR__ . '/order_functions.php'; // For update_order_status and getting order details
-require_once __DIR__ . '/item_functions.php';    // For deduct_shipped_stock
+require_once __DIR__ . '/item_functions.php';    // For deduct_shipped_stock, release_stock
 require_once __DIR__ . '/picking_functions.php'; // For get_completed_picklist_for_order and get_picklist_details
 
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
 // Define manifest statuses (can be moved to config)
 define('MANIFEST_STATUSES', ['OPEN', 'READY_FOR_DISPATCH', 'IN_TRANSIT', 'ARRIVED_HUB', 'COMPLETED', 'CANCELLED']);
-define('ORDER_STATUS_PRE_MANIFEST', ['PACKED', 'READY_TO_SHIP', ORDER_STATUS_PICKING_COMPLETE]); // Order statuses eligible for adding to manifest
-define('ORDER_STATUS_ON_MANIFEST', 'MANIFESTED'); // Status of order when added to an OPEN manifest
-define('ORDER_STATUS_DISPATCHED', 'OUT_FOR_DELIVERY'); // Status of order when manifest is IN_TRANSIT
-define('ORDER_STATUS_DELIVERED', 'DELIVERED'); // Status of order when manifest is COMPLETED
+// ORDER_STATUS_PICKING_COMPLETE is defined in picking_functions.php (e.g. 'READY_FOR_PACKAGING')
+define('ORDER_STATUS_PRE_MANIFEST', ['PACKED', 'READY_TO_SHIP', defined('ORDER_STATUS_PICKING_COMPLETE') ? ORDER_STATUS_PICKING_COMPLETE : 'READY_FOR_PACKAGING']);
+define('ORDER_STATUS_ON_MANIFEST', 'MANIFESTED');
+define('ORDER_STATUS_DISPATCHED', 'OUT_FOR_DELIVERY');
+define('ORDER_STATUS_DELIVERED', 'DELIVERED');
 
 
 function generate_manifest_code() {
@@ -123,7 +124,11 @@ function remove_order_from_manifest($manifest_id, $order_id, $revert_to_status =
         $removed_count = $stmt_remove->rowCount();
 
         if ($removed_count > 0) {
-            if (!update_order_status($order_id, $revert_to_status, "Removed from Manifest ID: {$manifest_id}")) {
+            // Before reverting, check if order was picked, use ORDER_STATUS_PICKING_COMPLETE if so
+            $picklist_id = get_completed_picklist_for_order($order_id);
+            $final_revert_status = $picklist_id ? ORDER_STATUS_PICKING_COMPLETE : $revert_to_status;
+
+            if (!update_order_status($order_id, $final_revert_status, "Removed from Manifest ID: {$manifest_id}")) {
                 $pdo->rollBack();
                 return false;
             }
@@ -272,6 +277,11 @@ function update_manifest_status($manifest_id, $new_status, $notes_for_order_hist
         return true; // No change needed
     }
 
+    if (in_array($current_manifest['status'], ['IN_TRANSIT', 'ARRIVED_HUB', 'COMPLETED']) && $new_status === 'CANCELLED') {
+        $_SESSION['error_message'] = "Cannot cancel a manifest that is already '{$current_manifest['status']}'. This requires a different process.";
+        return false;
+    }
+
     $pdo->beginTransaction();
     try {
         $sql_update = "UPDATE manifests SET status = :new_status, updated_at = CURRENT_TIMESTAMP WHERE id = :id";
@@ -297,13 +307,13 @@ function update_manifest_status($manifest_id, $new_status, $notes_for_order_hist
                                     if (!deduct_shipped_stock($picked_item['item_id'], $picked_item['picked_from_location_id'], $picked_item['quantity_picked'])) {
                                         $pdo->rollBack();
                                         $_SESSION['error_message'] = "Critical Error: Failed to deduct stock for item ID {$picked_item['item_id']} (Order: {$order_id}). Manifest dispatch aborted.";
-                                        error_log($_SESSION['error_message']);
+                                        error_log($_SESSION['error_message']); // Log it as well
                                         return false;
                                     }
                                 }
                             }
                         } else { error_log("No picked items found for completed picklist ID {$picklist_id} for order ID {$order_id}. Stock deduction potentially incomplete.");}
-                    } else { error_log("CRITICAL WARNING: Order ID {$order_id} on manifest {$manifest_id} has no COMPLETED picklist. Inventory deduction cannot proceed accurately."); }
+                    } else { error_log("CRITICAL WARNING: Order ID {$order_id} on manifest {$manifest_id} has no COMPLETED picklist for IN_TRANSIT. Inventory deduction cannot proceed accurately."); }
                 }
             } elseif ($new_status === 'COMPLETED') {
                 foreach ($order_ids_on_manifest as $order_id) {
@@ -317,18 +327,38 @@ function update_manifest_status($manifest_id, $new_status, $notes_for_order_hist
                     } else { error_log("Order ID {$order_id} on completed manifest {$manifest_id} was '{$current_order_status}'. Not auto-set to DELIVERED.");}
                 }
             } elseif ($new_status === 'CANCELLED') {
+                 if (!in_array($current_manifest['status'], ['OPEN', 'READY_FOR_DISPATCH'])) { // This check is now at the top, but re-asserting for clarity
+                    $_SESSION['error_message'] = "Manifest cannot be cancelled as it is already in status '{$current_manifest['status']}'.";
+                    $pdo->rollBack();
+                    return false;
+                 }
                  foreach ($order_ids_on_manifest as $order_id) {
                     $order_stmt = $pdo->prepare("SELECT order_status FROM orders WHERE id = :order_id");
                     $order_stmt->execute([':order_id' => $order_id]);
                     $current_order_status = $order_stmt->fetchColumn();
-                    if ($current_order_status === ORDER_STATUS_ON_MANIFEST || $current_order_status === ORDER_STATUS_DISPATCHED ) {
-                         if (!update_order_status($order_id, 'PACKED', "Manifest {$manifest_id} cancelled. Order returned to PACKED status.")) {
+                    if (in_array($current_order_status, [ORDER_STATUS_ON_MANIFEST, ORDER_STATUS_DISPATCHED])) {
+                         $revert_to = (defined('ORDER_STATUS_PICKING_COMPLETE') && get_completed_picklist_for_order($order_id)) ? ORDER_STATUS_PICKING_COMPLETE : 'PACKED';
+                         if (!update_order_status($order_id, $revert_to, "Manifest {$manifest_id} cancelled. Order returned to {$revert_to} status.")) {
                             $pdo->rollBack(); return false;
                         }
-                        // TODO: Release allocated stock for items on these orders if manifest is cancelled after picking.
-                        // This requires finding picklist items and calling release_stock() for each.
-                        error_log("Placeholder: Stock allocation release needed for order ID {$order_id} due to manifest cancellation.");
                     }
+                    // Release Allocated Stock
+                    $picklist_id = get_completed_picklist_for_order($order_id);
+                    if ($picklist_id) {
+                        $picklist_details = get_picklist_details($picklist_id);
+                        if ($picklist_details && !empty($picklist_details['items'])) {
+                            foreach ($picklist_details['items'] as $picked_item) {
+                                if (in_array($picked_item['status'], ['PICKED', 'PARTIALLY_PICKED']) && $picked_item['quantity_picked'] > 0 && $picked_item['picked_from_location_id']) {
+                                    if (!release_stock($picked_item['item_id'], $picked_item['picked_from_location_id'], $picked_item['quantity_picked'])) {
+                                        $pdo->rollBack();
+                                        $_SESSION['error_message'] = $_SESSION['error_message'] ?? "Critical Error: Failed to release allocated stock for item ID {$picked_item['item_id']} (Order: {$order_id}). Manifest cancellation aborted.";
+                                        error_log($_SESSION['error_message']);
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    } else { error_log("Warning: Order ID {$order_id} on cancelled manifest {$manifest_id} has no COMPLETED picklist. Stock allocation release may be incomplete if allocated via another means.");}
                 }
             }
         }
